@@ -15,7 +15,8 @@ from ovos_utils.xdg_utils import xdg_data_home
 _urls = {
     "hivemind": "https://github.com/JarbasHiveMind/HiveMind-community-docs/archive/refs/heads/master.zip",
     "community": "https://github.com/OpenVoiceOS/community-docs/archive/refs/heads/master.zip",
-    "technical": "https://github.com/OpenVoiceOS/ovos-technical-manual/archive/refs/heads/master.zip"
+    "technical": "https://github.com/OpenVoiceOS/ovos-technical-manual/archive/refs/heads/master.zip",
+    "messages": "https://github.com/OpenVoiceOS/message_spec/archive/refs/heads/master.zip"
 }
 
 
@@ -103,10 +104,10 @@ class Documentation(App):
             self.sub_title = str(event.path)
 
 
-@click.command(help="launch docs viewer, choose one of 'community', 'technical', 'hivemind'")
+@click.command(help="launch docs viewer, choose one of 'community', 'technical', 'hivemind', 'messages'")
 @click.argument('docs')
 def launch(docs):
-    assert docs in ["hivemind", "community", "technical"]
+    assert docs in ["hivemind", "community", "technical", "messages"]
     Documentation.DOCSK = docs
     Documentation().run()
 
