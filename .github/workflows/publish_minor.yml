@@ -32,7 +32,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Declare alpha stable
-          branch: main
+          branch: dev
       - name: version
         run: echo "::set-output name=version::$(python setup.py --version)"
         id: version
@@ -59,7 +59,7 @@ jobs:
         run: |
           VER=$(python setup.py --version)
           python scripts/bump_minor.py
-      - name: Commit to main
+      - name: Commit to dev
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Prepare Next Version

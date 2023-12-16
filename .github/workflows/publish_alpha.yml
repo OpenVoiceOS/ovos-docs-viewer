@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: main
+          ref: dev
           fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -44,7 +44,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Increment Version
-          branch: main
+          branch: dev
       - name: version
         run: echo "::set-output name=version::$(python setup.py --version)"
         id: version
@@ -61,7 +61,7 @@ jobs:
             ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: true
-          commitish: main
+          commitish: dev
       - name: Build Distribution Packages
         run: |
           python setup.py bdist_wheel
