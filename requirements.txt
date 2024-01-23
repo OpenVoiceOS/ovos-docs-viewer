@@ -1,4 +1,4 @@
 click
+ovos_utils
 requests
 textual
-ovos_utils

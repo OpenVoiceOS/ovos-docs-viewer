@@ -16,7 +16,7 @@ _urls = {
     "hivemind": "https://github.com/JarbasHiveMind/HiveMind-community-docs/archive/refs/heads/master.zip",
     "community": "https://github.com/OpenVoiceOS/community-docs/archive/refs/heads/master.zip",
     "technical": "https://github.com/OpenVoiceOS/ovos-technical-manual/archive/refs/heads/master.zip",
-    "messages": "https://github.com/OpenVoiceOS/message_spec/archive/refs/heads/master.zip"
+    "messages": "https://github.com/OpenVoiceOS/message_spec/archive/refs/heads/master.zip",
 }
 
 
@@ -27,14 +27,14 @@ def download(force=False):
         folder = f"{p}/{k}"
         if not force and os.path.isdir(folder):
             continue
-        data = requests.get(url).content
+        data = requests.get(url, timeout=30).content
         zi = folder + ".zip"
-        with open(zi, "wb") as f:
-            f.write(data)
+        with open(zi, "wb") as file:
+            file.write(data)
 
         items = url.split("/")
 
-        with zipfile.ZipFile(zi, 'r') as zip_ref:
+        with zipfile.ZipFile(zi, "r") as zip_ref:
             zip_ref.extractall(p)
             if os.path.exists(f"{p}/{k}"):
                 shutil.rmtree(f"{p}/{k}")
@@ -45,7 +45,11 @@ def download(force=False):
 
 class FilteredDirectoryTree(DirectoryTree):
     def filter_paths(self, paths: Iterable[Path]) -> Iterable[Path]:
-        return [path for path in paths if not path.name.startswith(".") and path.name.endswith(".md")]
+        return [
+            path
+            for path in paths
+            if not path.name.startswith(".") and path.name.endswith(".md")
+        ]
 
 
 class Documentation(App):
@@ -55,8 +59,7 @@ class Documentation(App):
         ("q", "quit", "Quit"),
     ]
     DOCSK = "technical"
-    docs = {k: f"{xdg_data_home()}/ovos_docs/{k}/docs"
-            for k in _urls.keys()}
+    docs = {k: f"{xdg_data_home()}/ovos_docs/{k}/docs" for k in _urls.keys()}
 
     def __init__(self, *args, **kwargs):
         download()
@@ -85,7 +88,7 @@ class Documentation(App):
         self.query_one(DirectoryTree).focus()
 
     async def on_directory_tree_file_selected(
-            self, event: DirectoryTree.FileSelected
+        self, event: DirectoryTree.FileSelected
     ) -> None:
         """Called when the user click a file in the directory tree."""
         event.stop()
@@ -97,15 +100,15 @@ class Documentation(App):
             except FileNotFoundError:
                 self.exit(message=f"Unable to load {self.path!r}")
         except Exception:
-            # code_view.update(Traceback(theme="github-dark", width=None))
             self.sub_title = "ERROR"
         else:
-            # ode_view.update(self.markdown_viewer)
             self.sub_title = str(event.path)
 
 
-@click.command(help="launch docs viewer, choose one of 'community', 'technical', 'hivemind', 'messages'")
-@click.argument('docs')
+@click.command(
+    help="Launch docs viewer, choose one of 'community', 'technical', 'hivemind', 'messages'"
+)
+@click.argument("docs")
 def launch(docs):
     assert docs in ["hivemind", "community", "technical", "messages"]
     Documentation.DOCSK = docs
