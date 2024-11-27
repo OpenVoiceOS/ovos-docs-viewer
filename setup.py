@@ -53,7 +53,7 @@ setup(
     keywords='ovos scripts',
     entry_points={
         'console_scripts': [
-            'doc_viewer = ovos_docs_viewer.ovos_docs:launch'
+            'ovos-docs-viewer = ovos_docs_viewer.ovos_docs:launch'
             ]
         }
 )
