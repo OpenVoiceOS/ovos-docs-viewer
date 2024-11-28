@@ -7,9 +7,6 @@ URL = "https://github.com/OpenVoiceOS/ovos-docs-viewer"
 PYPI_NAME = "ovos-docs-viewer"  # pip install PYPI_NAME
 AUTHOR, NAME = URL.split(".com/")[-1].split("/")
 
-with open(f"{os.path.dirname(__file__)}/README.md", "r") as f:
-    long_description = f.read()
-
 
 def get_version():
     """ Find the version of this skill"""
@@ -38,7 +35,6 @@ def get_version():
 setup(
     name=PYPI_NAME,
     version=get_version(),
-    long_description=long_description,
     url=URL,
     author=AUTHOR,
     description='Cli Documentation Viewer for OVOS',
