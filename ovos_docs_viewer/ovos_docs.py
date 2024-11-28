@@ -20,6 +20,80 @@ DOCS_URLS = {
     "hivemind": "https://github.com/JarbasHiveMind/HiveMind-community-docs/archive/refs/heads/master.zip",
 }
 
+SKILLS = ['https://github.com/OpenVoiceOS/ovos-skill-alerts',
+          'https://github.com/OpenVoiceOS/ovos-skill-application-launcher',
+          'https://github.com/OpenVoiceOS/ovos-skill-audio-recording',
+          'https://github.com/OpenVoiceOS/ovos-skill-bandcamp',
+          'https://github.com/OpenVoiceOS/ovos-skill-boot-finished',
+          'https://github.com/OpenVoiceOS/ovos-skill-camera',
+          'https://github.com/OpenVoiceOS/ovos-skill-cmd',
+          'https://github.com/OpenVoiceOS/ovos-skill-color-picker',
+          'https://github.com/OpenVoiceOS/ovos-skill-confucius-quotes',
+          'https://github.com/OpenVoiceOS/ovos-skill-date-time',
+          'https://github.com/OpenVoiceOS/ovos-skill-days-in-history',
+          'https://github.com/OpenVoiceOS/ovos-skill-ddg',
+          'https://github.com/OpenVoiceOS/ovos-skill-dictation',
+          'https://github.com/OpenVoiceOS/ovos-skill-easter-eggs',
+          'https://github.com/OpenVoiceOS/ovos-skill-fallback-chatgpt',
+          'https://github.com/OpenVoiceOS/ovos-skill-fallback-unknown',
+          'https://github.com/OpenVoiceOS/ovos-skill-ggwave',
+          'https://github.com/OpenVoiceOS/ovos-skill-hello-world',
+          'https://github.com/OpenVoiceOS/ovos-skill-homescreen',
+          'https://github.com/OpenVoiceOS/ovos-skill-icanhazdadjokes',
+          'https://github.com/OpenVoiceOS/ovos-skill-ip',
+          'https://github.com/OpenVoiceOS/ovos-skill-iss-location',
+          'https://github.com/OpenVoiceOS/ovos-skill-laugh',
+          'https://github.com/OpenVoiceOS/ovos-skill-local-media',
+          'https://github.com/OpenVoiceOS/ovos-skill-moviemaster',
+          'https://github.com/OpenVoiceOS/ovos-skill-naptime',
+          'https://github.com/OpenVoiceOS/ovos-skill-news',
+          'https://github.com/OpenVoiceOS/ovos-skill-number-facts',
+          'https://github.com/OpenVoiceOS/ovos-skill-parrot',
+          'https://github.com/OpenVoiceOS/ovos-skill-personal',
+          'https://github.com/OpenVoiceOS/ovos-skill-pyradios',
+          'https://github.com/OpenVoiceOS/ovos-skill-randomness',
+          'https://github.com/OpenVoiceOS/ovos-skill-screenshot',
+          'https://github.com/OpenVoiceOS/ovos-skill-somafm',
+          'https://github.com/OpenVoiceOS/ovos-skill-soundcloud',
+          'https://github.com/OpenVoiceOS/ovos-skill-speedtest',
+          'https://github.com/OpenVoiceOS/ovos-skill-spelling',
+          'https://github.com/OpenVoiceOS/ovos-skill-spotify',
+          'https://github.com/OpenVoiceOS/ovos-skill-tunein',
+          'https://github.com/OpenVoiceOS/ovos-skill-volume',
+          'https://github.com/OpenVoiceOS/ovos-skill-wallpapers',
+          'https://github.com/OpenVoiceOS/ovos-skill-weather',
+          'https://github.com/OpenVoiceOS/ovos-skill-wikihow',
+          'https://github.com/OpenVoiceOS/ovos-skill-wikipedia',
+          'https://github.com/OpenVoiceOS/ovos-skill-wolfie',
+          'https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day',
+          'https://github.com/OpenVoiceOS/ovos-skill-wordnet',
+          'https://github.com/OpenVoiceOS/ovos-skill-youtube',
+          'https://github.com/OpenVoiceOS/ovos-skill-youtube-music']
+SKILLS = [f"{s}/raw/refs/heads/dev/README.md" for s in SKILLS]
+
+
+def download_skills(force: bool = False) -> str:
+
+    base_path = Path(xdg_data_home()) / "ovos_docs" / "skills" / "docs"
+    base_path.mkdir(parents=True, exist_ok=True)
+
+    for url in SKILLS:
+        print(f"downloading: {url}")
+        key = url.split("https://github.com/OpenVoiceOS/")[-1].split("/")[0]
+
+        skill_doc = base_path / f"{key}.md"
+        # Skip download if folder exists and not forcing a re-download
+        if not force and skill_doc.exists():
+            continue
+
+        response = requests.get(url)
+        response.raise_for_status()
+
+        with open(skill_doc, "w") as f:
+            f.write(response.text)
+
+    return str(base_path)
+
 
 def download_docs(force: bool = False) -> Dict[str, str]:
     """
@@ -43,6 +117,7 @@ def download_docs(force: bool = False) -> Dict[str, str]:
             docs_paths[key] = str(doc_folder / "docs")
             continue
 
+        print(f"downloading: {url}")
         response = requests.get(url)
         response.raise_for_status()
 
@@ -64,6 +139,7 @@ def download_docs(force: bool = False) -> Dict[str, str]:
 
         docs_paths[key] = str(doc_folder / "docs")
 
+    docs_paths["skills"] = download_skills(force)
     return docs_paths
 
 
@@ -134,10 +210,11 @@ class Documentation(App):
             self.sub_title = f"ERROR: {e}"
 
 
-@click.command(help=f"View documentation for: {' | '.join(list(DOCS_URLS.keys()))}")
+@click.command(help=f"View documentation for: {' | '.join(['skills'] + list(DOCS_URLS.keys()))}")
 @click.argument('docs')
 def launch(docs: str):
     f"""Launch the documentation viewer."""
+    assert docs in ['skills'] + list(DOCS_URLS.keys())
     Documentation(selected_doc=docs).run()
 
 
