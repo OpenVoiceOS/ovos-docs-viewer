@@ -1,13 +1,16 @@
 # Changelog
 
-## [0.0.0a2](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.0a2) (2024-11-28)
+## [0.0.2a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.2a1) (2025-12-18)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/18e06488b37ce4733dd92ddf3c04f463e803e206...0.0.0a2)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.1...0.0.2a1)
+
+**Closed issues:**
+
+- Not on PyPi [\#4](https://github.com/OpenVoiceOS/ovos-docs-viewer/issues/4)
 
 **Merged pull requests:**
 
-- semver [\#5](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/5) ([JarbasAl](https://github.com/JarbasAl))
-- update with setup.py [\#1](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/1) ([builderjer](https://github.com/builderjer))
+- Configure Renovate [\#7](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/7) ([renovate[bot]](https://github.com/apps/renovate))
 
 
 
