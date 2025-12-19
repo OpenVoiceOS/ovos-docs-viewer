@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.2a2](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.2a2) (2025-12-19)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.2a1...0.0.2a2)
+
+**Merged pull requests:**
+
+- Update dependency python to 3.14 [\#9](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/9) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [0.0.2a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.2a1) (2025-12-18)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.1...0.0.2a1)
