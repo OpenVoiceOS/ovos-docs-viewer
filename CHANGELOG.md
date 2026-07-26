@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.3a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.3a1) (2026-07-26)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.2a3...0.0.3a1)
+
+**Merged pull requests:**
+
+- fix: zip-extract dir is '\<repo\>-\<branch\>', not '\<branch\>-\<branch\>' \(FileNotFoundError on cold cache\) [\#15](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/15) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.2a3](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.2a3) (2025-12-19)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.2a2...0.0.2a3)
