@@ -127,7 +127,10 @@ def download_docs(force: bool = False) -> Dict[str, str]:
                 f.write(response.content)
 
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                extracted_name = url.split("/")[-1].replace(".zip", "-master")
+                # GitHub branch archives extract to "<repo>-<branch>", not "<branch>-<branch>"
+                repo_name = url.split("/archive/")[0].split("/")[-1]
+                branch = url.split("/")[-1].replace(".zip", "")
+                extracted_name = f"{repo_name}-{branch}"
                 zip_ref.extractall(base_path)
                 shutil.move(base_path / extracted_name, doc_folder)
             zip_path.unlink()
