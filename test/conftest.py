@@ -13,6 +13,18 @@ def make_zip_bytes(extracted_name: str) -> bytes:
     return buf.getvalue()
 
 
+def make_root_tree_zip_bytes(extracted_name: str) -> bytes:
+    """A zip whose markdown lives at the repo root plus a subfolder,
+    like OpenVoiceOS/architecture."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        zf.writestr(f"{extracted_name}/README.md", "# root readme\n")
+        zf.writestr(f"{extracted_name}/pipeline-1.md", "# pipeline spec\n")
+        zf.writestr(f"{extracted_name}/appendix/foo.md", "# appendix foo\n")
+        zf.writestr(f"{extracted_name}/LICENSE", "license text\n")
+    return buf.getvalue()
+
+
 class Handler(BaseHTTPRequestHandler):
     routes = {}
 

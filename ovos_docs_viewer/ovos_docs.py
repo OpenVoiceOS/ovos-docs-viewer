@@ -20,6 +20,15 @@ DOCS_URLS = {
     "technical": "https://github.com/OpenVoiceOS/ovos-technical-manual/archive/refs/heads/master.zip",
     "messages": "https://github.com/OpenVoiceOS/message_spec/archive/refs/heads/master.zip",
     "hivemind": "https://github.com/JarbasHiveMind/HiveMind-community-docs/archive/refs/heads/master.zip",
+    "architecture": "https://github.com/OpenVoiceOS/architecture/archive/refs/heads/dev.zip",
+}
+
+# Where the markdown tree lives inside each extracted/downloaded doc set,
+# relative to doc_folder. Most sets keep their docs under a "docs"
+# subfolder; a few (like "architecture") have the markdown at the repo
+# root, so the tree root IS doc_folder itself (empty subdir).
+DOCS_SUBDIR: Dict[str, str] = {
+    "architecture": "",
 }
 
 SKILLS = ['https://github.com/OpenVoiceOS/ovos-skill-alerts',
@@ -128,16 +137,17 @@ def download_docs(force: bool = False) -> Dict[str, str]:
 
     for key, url in DOCS_URLS.items():
         doc_folder = base_path / key
+        subdir = DOCS_SUBDIR.get(key, "docs")
 
         # Skip only if a complete download is already cached. A folder that
-        # exists but has no "docs" content is a leftover from an interrupted
+        # exists but has no docs content is a leftover from an interrupted
         # run (e.g. pre-fix code, or a kill between mkdir and write) and must
         # be treated as not cached so it gets re-downloaded.
-        docs_dir = doc_folder / "docs"
+        docs_dir = doc_folder / subdir if subdir else doc_folder
         cached = docs_dir.is_dir() and any(docs_dir.iterdir())
         if not (force or key == "live-status") and cached:
             print(f"already cached, skipping (use --refresh to re-download): {key}")
-            docs_paths[key] = str(doc_folder / "docs")
+            docs_paths[key] = str(docs_dir)
             continue
 
         print(f"downloading: {url}")
@@ -165,12 +175,13 @@ def download_docs(force: bool = False) -> Dict[str, str]:
                     zip_ref.extractall(tmp_dir)
                 finalized = tmp_dir / extracted_name
             else:
-                (tmp_dir / "docs").mkdir()
-                with open(tmp_dir / "docs" / f"{key}.md", "w") as f:
+                doc_subdir = tmp_dir / subdir if subdir else tmp_dir
+                doc_subdir.mkdir(parents=True, exist_ok=True)
+                with open(doc_subdir / f"{key}.md", "w") as f:
                     f.write(response.text)
                 finalized = tmp_dir
 
-            other_docs_dir = doc_folder / "docs"
+            other_docs_dir = doc_folder / subdir if subdir else doc_folder
             other_complete = other_docs_dir.is_dir() and any(other_docs_dir.iterdir())
             if force or key == "live-status" or not other_complete:
                 # discard any incomplete leftover (stale scaffold from a
@@ -184,7 +195,7 @@ def download_docs(force: bool = False) -> Dict[str, str]:
         finally:
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
-        docs_paths[key] = str(doc_folder / "docs")
+        docs_paths[key] = str(doc_folder / subdir) if subdir else str(doc_folder)
 
     docs_paths["skills"] = download_skills(force)
     return docs_paths
@@ -194,7 +205,8 @@ class FilteredDirectoryTree(DirectoryTree):
     """Directory tree widget with filters to show only relevant files."""
 
     def filter_paths(self, paths: Iterable[Path]) -> Iterable[Path]:
-        return [path for path in paths if not path.name.startswith(".") and path.name.endswith(".md")]
+        return [path for path in paths
+                if not path.name.startswith(".") and (path.is_dir() or path.name.endswith(".md"))]
 
 
 class Documentation(App):
@@ -264,6 +276,7 @@ skills       skill READMEs
 technical    the OVOS technical manual
 messages     the bus message spec
 hivemind     HiveMind community docs
+architecture the OVOS formal specifications (protocol/ABI specs)
 live-status  live ecosystem status, always re-fetched
 raspOVOS     raspOVOS user docs
 installer    ovos-installer docs
