@@ -14,16 +14,29 @@ pip install ovos-docs-viewer
 
 ```bash
 $ ovos-docs-viewer --help
-Usage: ovos-docs-viewer [OPTIONS] DOCS
+Usage: ovos-docs-viewer [OPTIONS] {skills|live-status|raspOVOS|installer|technical|messages|hivemind}
 
-  View documentation for: skills | live-status | raspOVOS | installer |
-  technical | messages | hivemind
+  View documentation for one of:
+
+  skills       skill READMEs
+  technical    the OVOS technical manual
+  messages     the bus message spec
+  hivemind     HiveMind community docs
+  live-status  live ecosystem status, always re-fetched
+  raspOVOS     raspOVOS user docs
+  installer    ovos-installer docs
+
+  Files are cached under $XDG_DATA_HOME/ovos_docs (default
+  ~/.local/share/ovos_docs). Use --refresh to wipe and re-download.
 
 Options:
-  --help  Show this message and exit.
+  --refresh  Wipe and re-download the cached documentation before launching.
+  --help     Show this message and exit.
 ```
 
-Pick a documentation set from the list above. The tool downloads the matching docs on first use and caches them locally. Use the file tree to pick a page, and read it in the markdown viewer.
+Pick a documentation set from the list above. The tool downloads the matching docs on first use and caches them locally under `$XDG_DATA_HOME/ovos_docs` (`~/.local/share/ovos_docs` by default). Use the file tree to pick a page, and read it in the markdown viewer.
+
+Pass `--refresh` to wipe the cache and re-download before launching. Note that `live-status` is always re-fetched on every run, refresh or not, since it tracks live ecosystem state rather than a stable doc set.
 
 ![1](https://github.com/user-attachments/assets/53f52149-e775-4f31-aafb-d344c339cd17)
 

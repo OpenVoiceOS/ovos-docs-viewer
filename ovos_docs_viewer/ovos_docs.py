@@ -1,4 +1,6 @@
+import os
 import shutil
+import tempfile
 import zipfile
 from pathlib import Path
 from typing import Iterable, Dict
@@ -78,19 +80,31 @@ def download_skills(force: bool = False) -> str:
     base_path.mkdir(parents=True, exist_ok=True)
 
     for url in SKILLS:
-        print(f"downloading: {url}")
         key = url.split("https://github.com/OpenVoiceOS/")[-1].split("/")[0]
 
         skill_doc = base_path / f"{key}.md"
-        # Skip download if folder exists and not forcing a re-download
+        # Skip download if file exists and not forcing a re-download
         if not force and skill_doc.exists():
+            print(f"already cached, skipping (use --refresh to re-download): {key}")
             continue
 
-        response = requests.get(url)
-        response.raise_for_status()
+        print(f"downloading: {url}")
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            raise click.ClickException(f"failed to download {url}: {e}")
 
-        with open(skill_doc, "w") as f:
-            f.write(response.text)
+        # write to a per-process temp file, then atomically replace so a
+        # killed download never leaves a truncated skill_doc behind
+        fd, tmp_path = tempfile.mkstemp(dir=base_path, prefix=f".{key}-", suffix=".tmp")
+        try:
+            with os.fdopen(fd, "w") as f:
+                f.write(response.text)
+            os.replace(tmp_path, skill_doc)
+        finally:
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)
 
     return str(base_path)
 
@@ -106,39 +120,69 @@ def download_docs(force: bool = False) -> Dict[str, str]:
         Dict[str, str]: A mapping of documentation keys to their local paths.
     """
     base_path = Path(xdg_data_home()) / "ovos_docs"
-    base_path.mkdir(parents=True, exist_ok=True)
+    try:
+        base_path.mkdir(parents=True, exist_ok=True)
+    except OSError as e:
+        raise click.ClickException(f"failed to create {base_path}: {e}")
     docs_paths = {}
 
     for key, url in DOCS_URLS.items():
         doc_folder = base_path / key
 
-        # Skip if folder exists and not forcing a re-download
-        if not (force or key == "live-status") and doc_folder.exists():
+        # Skip only if a complete download is already cached. A folder that
+        # exists but has no "docs" content is a leftover from an interrupted
+        # run (e.g. pre-fix code, or a kill between mkdir and write) and must
+        # be treated as not cached so it gets re-downloaded.
+        docs_dir = doc_folder / "docs"
+        cached = docs_dir.is_dir() and any(docs_dir.iterdir())
+        if not (force or key == "live-status") and cached:
+            print(f"already cached, skipping (use --refresh to re-download): {key}")
             docs_paths[key] = str(doc_folder / "docs")
             continue
 
         print(f"downloading: {url}")
-        response = requests.get(url)
-        response.raise_for_status()
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            raise click.ClickException(f"failed to download {url}: {e}")
 
-        if url.endswith(".zip"):
-            zip_path = doc_folder.with_suffix(".zip")
-            with open(zip_path, "wb") as f:
-                f.write(response.content)
+        # do all the work in a process-unique temp dir under base_path, then
+        # atomically finalize into doc_folder as the last step so a crash
+        # never leaves a partial/empty doc_folder behind
+        tmp_dir = Path(tempfile.mkdtemp(dir=base_path, prefix=f".{key}-"))
+        try:
+            if url.endswith(".zip"):
+                zip_path = tmp_dir / "download.zip"
+                with open(zip_path, "wb") as f:
+                    f.write(response.content)
 
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                # GitHub branch archives extract to "<repo>-<branch>", not "<branch>-<branch>"
-                repo_name = url.split("/archive/")[0].split("/")[-1]
-                branch = url.split("/")[-1].replace(".zip", "")
-                extracted_name = f"{repo_name}-{branch}"
-                zip_ref.extractall(base_path)
-                shutil.move(base_path / extracted_name, doc_folder)
-            zip_path.unlink()
-        else:
-            doc_folder.mkdir(parents=True, exist_ok=True)
-            (doc_folder / "docs").mkdir(exist_ok=True)
-            with open(doc_folder / "docs" / f"{key}.md", "w") as f:
-                f.write(response.text)
+                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                    # GitHub branch archives extract to "<repo>-<branch>", not "<branch>-<branch>"
+                    repo_name = url.split("/archive/")[0].split("/")[-1]
+                    branch = url.split("/")[-1].replace(".zip", "")
+                    extracted_name = f"{repo_name}-{branch}"
+                    zip_ref.extractall(tmp_dir)
+                finalized = tmp_dir / extracted_name
+            else:
+                (tmp_dir / "docs").mkdir()
+                with open(tmp_dir / "docs" / f"{key}.md", "w") as f:
+                    f.write(response.text)
+                finalized = tmp_dir
+
+            other_docs_dir = doc_folder / "docs"
+            other_complete = other_docs_dir.is_dir() and any(other_docs_dir.iterdir())
+            if force or key == "live-status" or not other_complete:
+                # discard any incomplete leftover (stale scaffold from a
+                # previous interrupted run) so the rename below can land
+                shutil.rmtree(doc_folder, ignore_errors=True)
+                try:
+                    os.replace(finalized, doc_folder)
+                except OSError:
+                    # another process won the race in between, keep its result
+                    pass
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
 
         docs_paths[key] = str(doc_folder / "docs")
 
@@ -159,16 +203,17 @@ class Documentation(App):
     BINDINGS = [("q", "quit", "Quit")]
     docs_paths: Dict[str, str] = {}
 
-    def __init__(self, selected_doc: str, *args, **kwargs):
+    def __init__(self, selected_doc: str, force: bool = False, *args, **kwargs):
         """
         Initialize the application.
 
         Args:
             selected_doc (str): The key of the selected documentation to view.
+            force (bool): Whether to re-download the selected documentation.
         """
         self.selected_doc = selected_doc
         if not self.docs_paths:
-            self.docs_paths = download_docs()
+            self.docs_paths = download_docs(force=force)
         super().__init__(*args, **kwargs)
 
     @property
@@ -213,12 +258,30 @@ class Documentation(App):
             self.sub_title = f"ERROR: {e}"
 
 
-@click.command(help=f"View documentation for: {' | '.join(['skills'] + list(DOCS_URLS.keys()))}")
-@click.argument('docs')
-def launch(docs: str):
-    f"""Launch the documentation viewer."""
-    assert docs in ['skills'] + list(DOCS_URLS.keys())
-    Documentation(selected_doc=docs).run()
+DOCS_HELP = """
+\b
+skills       skill READMEs
+technical    the OVOS technical manual
+messages     the bus message spec
+hivemind     HiveMind community docs
+live-status  live ecosystem status, always re-fetched
+raspOVOS     raspOVOS user docs
+installer    ovos-installer docs
+\b
+Files are cached under $XDG_DATA_HOME/ovos_docs (default
+~/.local/share/ovos_docs). Use --refresh to wipe and re-download.
+"""
+
+
+@click.command(help=f"View documentation for one of:\n{DOCS_HELP}",
+               context_settings={"max_content_width": 120})
+@click.argument('docs', type=click.Choice(['skills'] + list(DOCS_URLS.keys())))
+@click.option('--refresh', is_flag=True, default=False,
+              help="Wipe and re-download the cached documentation before launching.")
+def launch(docs: str, refresh: bool):
+    """Launch the documentation viewer."""
+    print("launching viewer...")
+    Documentation(selected_doc=docs, force=refresh).run()
 
 
 if __name__ == "__main__":
