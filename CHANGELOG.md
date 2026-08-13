@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.1.0a1) (2026-08-13)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.4a1...0.1.0a1)
+
+**Merged pull requests:**
+
+- feat: architecture specs docs set [\#23](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/23) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.4a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.4a1) (2026-08-13)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.3a4...0.0.4a1)
