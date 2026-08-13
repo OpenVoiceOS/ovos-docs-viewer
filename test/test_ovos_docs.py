@@ -182,6 +182,90 @@ def test_root_tree_docs_set_cached_skip(http_server, tmp_path, monkeypatch):
     assert paths["architecture"] == str(tmp_path / "ovos_docs" / "architecture")
 
 
+def test_refresh_only_selected_key_does_not_redownload_others(http_server, tmp_path, monkeypatch):
+    """--refresh KEY must force re-download of KEY only; other cached keys
+    must NOT be re-fetched. Regression for the bug where `force` was global
+    regardless of the selected key."""
+    http_server.routes["/x.md"] = b"x-content-1"
+    http_server.routes["/y.md"] = b"y-content-1"
+    monkeypatch.setattr(ovos_docs, "DOCS_URLS", {
+        "x": f"{http_server.base_url}/x.md",
+        "y": f"{http_server.base_url}/y.md",
+    })
+    monkeypatch.setattr(ovos_docs, "SKILLS", [])
+
+    hits = {"x": 0, "y": 0}
+    real_get = ovos_docs.requests.get
+
+    def counting_get(url, *a, **kw):
+        if url.endswith("/x.md"):
+            hits["x"] += 1
+        elif url.endswith("/y.md"):
+            hits["y"] += 1
+        return real_get(url, *a, **kw)
+
+    monkeypatch.setattr(ovos_docs.requests, "get", counting_get)
+
+    # initial download of both
+    ovos_docs.download_docs()
+    assert hits == {"x": 1, "y": 1}
+
+    # refresh only "x": x must be re-fetched, y must NOT be re-fetched
+    http_server.routes["/x.md"] = b"x-content-2"
+    http_server.routes["/y.md"] = b"y-content-2"
+    ovos_docs.download_docs(force=True, only="x")
+
+    assert hits == {"x": 2, "y": 1}
+    x_file = tmp_path / "ovos_docs" / "x" / "docs" / "x.md"
+    y_file = tmp_path / "ovos_docs" / "y" / "docs" / "y.md"
+    assert x_file.read_text() == "x-content-2"
+    assert y_file.read_text() == "y-content-1"
+
+
+def test_refresh_skills_forces_skills_not_doc_sets(http_server, tmp_path, monkeypatch):
+    """--refresh skills must force-refresh the skill READMEs but leave
+    already-cached doc sets untouched."""
+    http_server.routes["/tech.md"] = b"tech-content-1"
+    monkeypatch.setattr(ovos_docs, "DOCS_URLS", {"technical": f"{http_server.base_url}/tech.md"})
+
+    # download_skills derives its cache key by splitting on the literal
+    # "https://github.com/OpenVoiceOS/" prefix, so the fake URL must keep
+    # that substring even though it's actually served by the local test server.
+    skill_path = "/https://github.com/OpenVoiceOS/ovos-skill-fake/raw/refs/heads/dev/README.md"
+    http_server.routes[skill_path] = b"skill-content-1"
+    monkeypatch.setattr(ovos_docs, "SKILLS", [f"{http_server.base_url}{skill_path}"])
+
+    doc_hits = {"n": 0}
+    skill_hits = {"n": 0}
+    real_get = ovos_docs.requests.get
+
+    def counting_get(url, *a, **kw):
+        if url.endswith("/tech.md"):
+            doc_hits["n"] += 1
+        elif "ovos-skill-fake" in url:
+            skill_hits["n"] += 1
+        return real_get(url, *a, **kw)
+
+    monkeypatch.setattr(ovos_docs.requests, "get", counting_get)
+
+    ovos_docs.download_docs()
+    assert doc_hits["n"] == 1
+    assert skill_hits["n"] == 1
+
+    http_server.routes["/tech.md"] = b"tech-content-2"
+    http_server.routes[skill_path] = b"skill-content-2"
+
+    ovos_docs.download_docs(force=True, only="skills")
+
+    assert doc_hits["n"] == 1  # doc set untouched
+    assert skill_hits["n"] == 2  # skills force-refreshed
+
+    tech_file = tmp_path / "ovos_docs" / "technical" / "docs" / "technical.md"
+    skill_file = tmp_path / "ovos_docs" / "skills" / "docs" / "ovos-skill-fake.md"
+    assert tech_file.read_text() == "tech-content-1"
+    assert skill_file.read_text() == "skill-content-2"
+
+
 def test_non_live_status_skips_when_cached(http_server, tmp_path, monkeypatch):
     """Non-live-status doc sets must NOT re-download once cached."""
     http_server.routes["/tech.md"] = b"tech content"
