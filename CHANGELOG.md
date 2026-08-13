@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.4a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.4a1) (2026-08-13)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.3a4...0.0.4a1)
+
+**Merged pull requests:**
+
+- fix: atomic doc cache writes, concurrent-download safety, clean CLI errors [\#19](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/19) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.3a4](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.3a4) (2026-08-13)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.3a3...0.0.3a4)
