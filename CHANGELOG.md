@@ -1,13 +1,88 @@
 # Changelog
 
-## [0.0.0a2](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.0a2) (2024-11-28)
+## [0.1.1a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.1.1a1) (2026-08-13)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/18e06488b37ce4733dd92ddf3c04f463e803e206...0.0.0a2)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.1.0a1...0.1.1a1)
 
 **Merged pull requests:**
 
-- semver [\#5](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/5) ([JarbasAl](https://github.com/JarbasAl))
-- update with setup.py [\#1](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/1) ([builderjer](https://github.com/builderjer))
+- fix: --refresh only re-downloads the selected docs set [\#25](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/25) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.1.0a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.1.0a1) (2026-08-13)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.4a1...0.1.0a1)
+
+**Merged pull requests:**
+
+- feat: architecture specs docs set [\#23](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/23) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.0.4a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.4a1) (2026-08-13)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.3a4...0.0.4a1)
+
+**Merged pull requests:**
+
+- fix: atomic doc cache writes, concurrent-download safety, clean CLI errors [\#19](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/19) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.0.3a4](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.3a4) (2026-08-13)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.3a3...0.0.3a4)
+
+**Merged pull requests:**
+
+- ci: pyproject-only packaging, fix builds on python 3.14 [\#20](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/20) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.0.3a3](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.3a3) (2026-08-02)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.3a2...0.0.3a3)
+
+**Merged pull requests:**
+
+- ci: migrate release workflow to shared OpenVoiceOS automations [\#17](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/17) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.0.3a2](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.3a2) (2026-07-31)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.3a1...0.0.3a2)
+
+**Merged pull requests:**
+
+- docs: rewrite README in Simplified Technical English [\#16](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/16) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.0.3a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.3a1) (2026-07-26)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.2a3...0.0.3a1)
+
+**Merged pull requests:**
+
+- fix: zip-extract dir is '\<repo\>-\<branch\>', not '\<branch\>-\<branch\>' \(FileNotFoundError on cold cache\) [\#15](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/15) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.0.2a3](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.2a3) (2025-12-19)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.2a2...0.0.2a3)
+
+**Merged pull requests:**
+
+- Update actions/setup-python action to v6 [\#12](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/12) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [0.0.2a2](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.2a2) (2025-12-19)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.2a1...0.0.2a2)
+
+**Merged pull requests:**
+
+- Update dependency python to 3.14 [\#9](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/9) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [0.0.2a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.2a1) (2025-12-18)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.1...0.0.2a1)
+
+**Closed issues:**
+
+- Not on PyPi [\#4](https://github.com/OpenVoiceOS/ovos-docs-viewer/issues/4)
+
+**Merged pull requests:**
+
+- Configure Renovate [\#7](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/7) ([renovate[bot]](https://github.com/apps/renovate))
 
 
 
