@@ -14,7 +14,7 @@ pip install ovos-docs-viewer
 
 ```bash
 $ ovos-docs-viewer --help
-Usage: ovos-docs-viewer [OPTIONS] {skills|live-status|raspOVOS|installer|technical|messages|hivemind}
+Usage: ovos-docs-viewer [OPTIONS] {skills|live-status|raspOVOS|installer|technical|messages|hivemind|architecture}
 
   View documentation for one of:
 
@@ -22,6 +22,7 @@ Usage: ovos-docs-viewer [OPTIONS] {skills|live-status|raspOVOS|installer|technic
   technical    the OVOS technical manual
   messages     the bus message spec
   hivemind     HiveMind community docs
+  architecture the OVOS formal specifications (protocol/ABI specs)
   live-status  live ecosystem status, always re-fetched
   raspOVOS     raspOVOS user docs
   installer    ovos-installer docs
@@ -52,6 +53,7 @@ Pass `--refresh` to wipe the cache and re-download before launching. Note that `
 - [OpenVoiceOS/status](https://github.com/OpenVoiceOS/status): the status page shown by the `live-status` doc set.
 - [TigreGotico/raspOVOS](https://github.com/TigreGotico/raspOVOS): the raspOVOS docs shown by the `raspOVOS` doc set.
 - [JarbasHiveMind/HiveMind-community-docs](https://github.com/JarbasHiveMind/HiveMind-community-docs): the HiveMind docs shown by the `hivemind` doc set.
+- [OpenVoiceOS/architecture](https://github.com/OpenVoiceOS/architecture): the formal OVOS specifications shown by the `architecture` doc set.
 
 ## License
 

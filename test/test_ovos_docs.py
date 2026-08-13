@@ -5,7 +5,7 @@ import requests
 from click.testing import CliRunner
 
 from ovos_docs_viewer import ovos_docs
-from conftest import make_zip_bytes
+from conftest import make_zip_bytes, make_root_tree_zip_bytes
 
 import ovos_docs_viewer
 assert "/home/miro/tmp/dv-wt" in ovos_docs_viewer.__file__
@@ -132,6 +132,54 @@ def test_live_status_always_refreshes(http_server, tmp_path, monkeypatch):
     http_server.routes["/live.md"] = b"FRESH-CONTENT"
     ovos_docs.download_docs(force=False)
     assert doc_file.read_text() == "FRESH-CONTENT"
+
+
+def test_root_tree_docs_set_downloads(http_server, tmp_path, monkeypatch):
+    """A doc set whose markdown lives at the extracted repo root (like
+    OpenVoiceOS/architecture) must resolve its tree path via DOCS_SUBDIR,
+    not the hardcoded 'docs' subfolder."""
+    zip_bytes = make_root_tree_zip_bytes("architecture-dev")
+    http_server.routes["/architecture/archive/refs/heads/dev.zip"] = zip_bytes
+    url = f"{http_server.base_url}/architecture/archive/refs/heads/dev.zip"
+    monkeypatch.setattr(ovos_docs, "DOCS_URLS", {"architecture": url})
+    monkeypatch.setattr(ovos_docs, "DOCS_SUBDIR", {"architecture": ""})
+    monkeypatch.setattr(ovos_docs, "SKILLS", [])
+
+    paths = ovos_docs.download_docs()
+
+    doc_folder = tmp_path / "ovos_docs" / "architecture"
+    assert paths["architecture"] == str(doc_folder)
+    assert (doc_folder / "README.md").read_text() == "# root readme\n"
+    assert (doc_folder / "pipeline-1.md").read_text() == "# pipeline spec\n"
+    assert (doc_folder / "appendix" / "foo.md").read_text() == "# appendix foo\n"
+    assert (doc_folder / "LICENSE").exists()
+
+
+def test_root_tree_docs_set_cached_skip(http_server, tmp_path, monkeypatch):
+    """Once downloaded, a root-tree doc set must be recognized as cached
+    and skip re-download."""
+    zip_bytes = make_root_tree_zip_bytes("architecture-dev")
+    http_server.routes["/architecture/archive/refs/heads/dev.zip"] = zip_bytes
+    url = f"{http_server.base_url}/architecture/archive/refs/heads/dev.zip"
+    monkeypatch.setattr(ovos_docs, "DOCS_URLS", {"architecture": url})
+    monkeypatch.setattr(ovos_docs, "DOCS_SUBDIR", {"architecture": ""})
+    monkeypatch.setattr(ovos_docs, "SKILLS", [])
+
+    hits = {"n": 0}
+    real_get = ovos_docs.requests.get
+
+    def counting_get(*a, **kw):
+        hits["n"] += 1
+        return real_get(*a, **kw)
+
+    monkeypatch.setattr(ovos_docs.requests, "get", counting_get)
+
+    ovos_docs.download_docs()
+    assert hits["n"] == 1
+
+    paths = ovos_docs.download_docs(force=False)
+    assert hits["n"] == 1  # cache hit, no re-download
+    assert paths["architecture"] == str(tmp_path / "ovos_docs" / "architecture")
 
 
 def test_non_live_status_skips_when_cached(http_server, tmp_path, monkeypatch):
