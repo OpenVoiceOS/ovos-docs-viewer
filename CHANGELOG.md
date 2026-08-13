@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.3a4](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.3a4) (2026-08-13)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.3a3...0.0.3a4)
+
+**Merged pull requests:**
+
+- ci: pyproject-only packaging, fix builds on python 3.14 [\#20](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/20) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.3a3](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.0.3a3) (2026-08-02)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.3a2...0.0.3a3)
