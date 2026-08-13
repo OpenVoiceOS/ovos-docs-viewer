@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.1.1a1) (2026-08-13)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.1.0a1...0.1.1a1)
+
+**Merged pull requests:**
+
+- fix: --refresh only re-downloads the selected docs set [\#25](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/25) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.1.0a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.1.0a1) (2026-08-13)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.0.4a1...0.1.0a1)
