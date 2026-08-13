@@ -3,7 +3,7 @@ import shutil
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Iterable, Dict
+from typing import Iterable, Dict, Optional
 
 import click
 import requests
@@ -118,12 +118,15 @@ def download_skills(force: bool = False) -> str:
     return str(base_path)
 
 
-def download_docs(force: bool = False) -> Dict[str, str]:
+def download_docs(force: bool = False, only: Optional[str] = None) -> Dict[str, str]:
     """
     Downloads and prepares documentation from URLs.
 
     Args:
         force (bool): Whether to force re-download of existing documentation.
+        only (Optional[str]): If set, `force` only applies to this doc key;
+            every other key keeps its normal cache/skip semantics. If None,
+            `force` applies to all keys (existing behavior).
 
     Returns:
         Dict[str, str]: A mapping of documentation keys to their local paths.
@@ -138,6 +141,7 @@ def download_docs(force: bool = False) -> Dict[str, str]:
     for key, url in DOCS_URLS.items():
         doc_folder = base_path / key
         subdir = DOCS_SUBDIR.get(key, "docs")
+        key_force = force if (only is None or only == key) else False
 
         # Skip only if a complete download is already cached. A folder that
         # exists but has no docs content is a leftover from an interrupted
@@ -145,7 +149,7 @@ def download_docs(force: bool = False) -> Dict[str, str]:
         # be treated as not cached so it gets re-downloaded.
         docs_dir = doc_folder / subdir if subdir else doc_folder
         cached = docs_dir.is_dir() and any(docs_dir.iterdir())
-        if not (force or key == "live-status") and cached:
+        if not (key_force or key == "live-status") and cached:
             print(f"already cached, skipping (use --refresh to re-download): {key}")
             docs_paths[key] = str(docs_dir)
             continue
@@ -183,7 +187,7 @@ def download_docs(force: bool = False) -> Dict[str, str]:
 
             other_docs_dir = doc_folder / subdir if subdir else doc_folder
             other_complete = other_docs_dir.is_dir() and any(other_docs_dir.iterdir())
-            if force or key == "live-status" or not other_complete:
+            if key_force or key == "live-status" or not other_complete:
                 # discard any incomplete leftover (stale scaffold from a
                 # previous interrupted run) so the rename below can land
                 shutil.rmtree(doc_folder, ignore_errors=True)
@@ -197,7 +201,8 @@ def download_docs(force: bool = False) -> Dict[str, str]:
 
         docs_paths[key] = str(doc_folder / subdir) if subdir else str(doc_folder)
 
-    docs_paths["skills"] = download_skills(force)
+    skills_force = force if (only is None or only == "skills") else False
+    docs_paths["skills"] = download_skills(skills_force)
     return docs_paths
 
 
@@ -225,7 +230,7 @@ class Documentation(App):
         """
         self.selected_doc = selected_doc
         if not self.docs_paths:
-            self.docs_paths = download_docs(force=force)
+            self.docs_paths = download_docs(force=force, only=selected_doc if force else None)
         super().__init__(*args, **kwargs)
 
     @property
@@ -282,7 +287,8 @@ raspOVOS     raspOVOS user docs
 installer    ovos-installer docs
 \b
 Files are cached under $XDG_DATA_HOME/ovos_docs (default
-~/.local/share/ovos_docs). Use --refresh to wipe and re-download.
+~/.local/share/ovos_docs). Use --refresh to wipe and re-download the
+selected documentation set only.
 """
 
 
@@ -290,7 +296,7 @@ Files are cached under $XDG_DATA_HOME/ovos_docs (default
                context_settings={"max_content_width": 120})
 @click.argument('docs', type=click.Choice(['skills'] + list(DOCS_URLS.keys())))
 @click.option('--refresh', is_flag=True, default=False,
-              help="Wipe and re-download the cached documentation before launching.")
+              help="Wipe and re-download the selected documentation set before launching.")
 def launch(docs: str, refresh: bool):
     """Launch the documentation viewer."""
     print("launching viewer...")

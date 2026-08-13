@@ -28,16 +28,18 @@ Usage: ovos-docs-viewer [OPTIONS] {skills|live-status|raspOVOS|installer|technic
   installer    ovos-installer docs
 
   Files are cached under $XDG_DATA_HOME/ovos_docs (default
-  ~/.local/share/ovos_docs). Use --refresh to wipe and re-download.
+  ~/.local/share/ovos_docs). Use --refresh to wipe and re-download the
+  selected documentation set only.
 
 Options:
-  --refresh  Wipe and re-download the cached documentation before launching.
+  --refresh  Wipe and re-download the selected documentation set before
+             launching.
   --help     Show this message and exit.
 ```
 
 Pick a documentation set from the list above. The tool downloads the matching docs on first use and caches them locally under `$XDG_DATA_HOME/ovos_docs` (`~/.local/share/ovos_docs` by default). Use the file tree to pick a page, and read it in the markdown viewer.
 
-Pass `--refresh` to wipe the cache and re-download before launching. Note that `live-status` is always re-fetched on every run, refresh or not, since it tracks live ecosystem state rather than a stable doc set.
+Pass `--refresh` to wipe and re-download the selected documentation set before launching (other sets keep their cache). Note that `live-status` is always re-fetched on every run, refresh or not, since it tracks live ecosystem state rather than a stable doc set.
 
 ![1](https://github.com/user-attachments/assets/53f52149-e775-4f31-aafb-d344c339cd17)
 
