@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ovos-docs-viewer"
+dynamic = ["version"]
+description = "Cli Documentation Viewer for OVOS"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [{name = "jarbasAI", email = "jarbasai@mailfence.com"}]
+requires-python = ">=3.9"
+dependencies = [
+    "click",
+    "requests",
+    "textual",
+    "ovos_utils",
+]
+keywords = ["ovos", "scripts"]
+
+[project.urls]
+Homepage = "https://github.com/OpenVoiceOS/ovos-docs-viewer"
+Repository = "https://github.com/OpenVoiceOS/ovos-docs-viewer"
+
+[project.scripts]
+ovos-docs-viewer = "ovos_docs_viewer.ovos_docs:launch"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["ovos_docs_viewer*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "ovos_docs_viewer.version.__version__"}
