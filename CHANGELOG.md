@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.1.2a1) (2026-11-27)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.1.1a1...0.1.2a1)
+
+**Merged pull requests:**
+
+- fix\(tests\): drop the worktree-path assertion that errored the whole file [\#28](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/28) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.1.1a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.1.1a1) (2026-08-13)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.1.0a1...0.1.1a1)
