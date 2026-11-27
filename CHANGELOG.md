@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.3a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.1.3a1) (2026-11-27)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.1.2a1...0.1.3a1)
+
+**Merged pull requests:**
+
+- fix\(ci\): set test\_path so the build test actually runs the tests [\#27](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/27) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.1.2a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.1.2a1) (2026-11-27)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.1.1a1...0.1.2a1)
