@@ -7,8 +7,6 @@ from click.testing import CliRunner
 from ovos_docs_viewer import ovos_docs
 from conftest import make_zip_bytes, make_root_tree_zip_bytes
 
-import ovos_docs_viewer
-assert "/home/miro/tmp/dv-wt" in ovos_docs_viewer.__file__
 
 
 @pytest.fixture(autouse=True)
@@ -286,3 +284,19 @@ def test_non_live_status_skips_when_cached(http_server, tmp_path, monkeypatch):
 
     ovos_docs.download_docs(force=False)
     assert hits["n"] == 1  # no re-download, cache hit
+
+
+def test_offline_uses_cached_copy(http_server, tmp_path, monkeypatch):
+    """A failed fetch of a cached set warns and keeps the cached copy (issue #29)."""
+    monkeypatch.setattr(ovos_docs, "DOCS_URLS", {"live-status": f"{http_server.base_url}/live.md"})
+    monkeypatch.setattr(ovos_docs, "SKILLS", [])
+    http_server.routes["/live.md"] = b"# cached status\n"
+    first = ovos_docs.download_docs()
+
+    def offline(*a, **k):
+        raise requests.ConnectionError("offline")
+
+    monkeypatch.setattr(ovos_docs.requests, "get", offline)
+    second = ovos_docs.download_docs()
+    assert second == first
+    assert (tmp_path / "ovos_docs/live-status/docs/live-status.md").read_text() == "# cached status\n"
