@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.4a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.1.4a1) (2026-11-27)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.1.3a1...0.1.4a1)
+
+**Closed issues:**
+
+- ovos-docs-viewer cannot start offline when the docs are cached [\#29](https://github.com/OpenVoiceOS/ovos-docs-viewer/issues/29)
+
+**Merged pull requests:**
+
+- fix: start offline from the cached docs when a download fails [\#30](https://github.com/OpenVoiceOS/ovos-docs-viewer/pull/30) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.1.3a1](https://github.com/OpenVoiceOS/ovos-docs-viewer/tree/0.1.3a1) (2026-11-27)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-docs-viewer/compare/0.1.2a1...0.1.3a1)
