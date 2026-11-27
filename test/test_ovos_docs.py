@@ -283,3 +283,48 @@ def test_non_live_status_skips_when_cached(http_server, tmp_path, monkeypatch):
 
     ovos_docs.download_docs(force=False)
     assert hits["n"] == 1  # no re-download, cache hit
+
+
+def test_offline_uses_cached_copy(http_server, tmp_path, monkeypatch):
+    """A failed fetch of a cached set warns and keeps the cached copy (issue #29)."""
+    monkeypatch.setattr(ovos_docs, "DOCS_URLS", {"live-status": f"{http_server.base_url}/live.md"})
+    monkeypatch.setattr(ovos_docs, "SKILLS", [])
+    http_server.routes["/live.md"] = b"# cached status\n"
+    first = ovos_docs.download_docs()
+
+    def offline(*a, **k):
+        raise requests.ConnectionError("offline")
+
+    monkeypatch.setattr(ovos_docs.requests, "get", offline)
+    second = ovos_docs.download_docs()
+    assert second == first
+    assert (tmp_path / "ovos_docs/live-status/docs/live-status.md").read_text() == "# cached status\n"
+
+
+def test_skills_offline_uses_cached_copy(http_server, tmp_path, monkeypatch):
+    """A refresh with no network keeps a cached skill README."""
+    url = f"{http_server.base_url}/x/raw/README.md"
+    monkeypatch.setattr(ovos_docs, "SKILLS", [url])
+    http_server.routes["/x/raw/README.md"] = b"# skill\n"
+    ovos_docs.download_skills()
+    key = url.split("https://github.com/OpenVoiceOS/")[-1].split("/")[0]
+    doc = tmp_path / "ovos_docs/skills/docs" / f"{key}.md"
+    assert doc.read_text() == "# skill\n"
+
+    def offline(*a, **k):
+        raise requests.ConnectionError("offline")
+
+    monkeypatch.setattr(ovos_docs.requests, "get", offline)
+    ovos_docs.download_skills(force=True)
+    assert doc.read_text() == "# skill\n"
+
+
+def test_skills_offline_no_cache_clean_error(tmp_path, monkeypatch):
+    monkeypatch.setattr(ovos_docs, "SKILLS", ["http://127.0.0.1:1/x/README.md"])
+
+    def offline(*a, **k):
+        raise requests.ConnectionError("offline")
+
+    monkeypatch.setattr(ovos_docs.requests, "get", offline)
+    with pytest.raises(ovos_docs.click.ClickException):
+        ovos_docs.download_skills()

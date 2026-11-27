@@ -102,7 +102,10 @@ def download_skills(force: bool = False) -> str:
             response = requests.get(url)
             response.raise_for_status()
         except requests.RequestException as e:
-            raise click.ClickException(f"failed to download {url}: {e}")
+            if not skill_doc.exists():
+                raise click.ClickException(f"failed to download {url}: {e}")
+            print(f"download failed, using the cached copy: {key} ({e})")
+            continue
 
         # write to a per-process temp file, then atomically replace so a
         # killed download never leaves a truncated skill_doc behind
@@ -159,7 +162,11 @@ def download_docs(force: bool = False, only: Optional[str] = None) -> Dict[str, 
             response = requests.get(url)
             response.raise_for_status()
         except requests.RequestException as e:
-            raise click.ClickException(f"failed to download {url}: {e}")
+            if not cached:
+                raise click.ClickException(f"failed to download {url}: {e}")
+            print(f"download failed, using the cached copy: {key} ({e})")
+            docs_paths[key] = str(docs_dir)
+            continue
 
         # do all the work in a process-unique temp dir under base_path, then
         # atomically finalize into doc_folder as the last step so a crash
