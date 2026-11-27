@@ -7,9 +7,6 @@ from click.testing import CliRunner
 from ovos_docs_viewer import ovos_docs
 from conftest import make_zip_bytes, make_root_tree_zip_bytes
 
-import ovos_docs_viewer
-assert "/home/miro/tmp/dv-wt" in ovos_docs_viewer.__file__
-
 
 @pytest.fixture(autouse=True)
 def isolated_xdg(tmp_path, monkeypatch):
