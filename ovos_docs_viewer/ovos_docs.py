@@ -102,10 +102,9 @@ def download_skills(force: bool = False) -> str:
             response = requests.get(url)
             response.raise_for_status()
         except requests.RequestException as e:
-            if not cached:
+            if not skill_doc.exists():
                 raise click.ClickException(f"failed to download {url}: {e}")
             print(f"download failed, using the cached copy: {key} ({e})")
-            docs_paths[key] = str(docs_dir)
             continue
 
         # write to a per-process temp file, then atomically replace so a

@@ -300,3 +300,32 @@ def test_offline_uses_cached_copy(http_server, tmp_path, monkeypatch):
     second = ovos_docs.download_docs()
     assert second == first
     assert (tmp_path / "ovos_docs/live-status/docs/live-status.md").read_text() == "# cached status\n"
+
+
+def test_skills_offline_uses_cached_copy(http_server, tmp_path, monkeypatch):
+    """A refresh with no network keeps a cached skill README."""
+    url = f"{http_server.base_url}/x/raw/README.md"
+    monkeypatch.setattr(ovos_docs, "SKILLS", [url])
+    http_server.routes["/x/raw/README.md"] = b"# skill\n"
+    ovos_docs.download_skills()
+    key = url.split("https://github.com/OpenVoiceOS/")[-1].split("/")[0]
+    doc = tmp_path / "ovos_docs/skills/docs" / f"{key}.md"
+    assert doc.read_text() == "# skill\n"
+
+    def offline(*a, **k):
+        raise requests.ConnectionError("offline")
+
+    monkeypatch.setattr(ovos_docs.requests, "get", offline)
+    ovos_docs.download_skills(force=True)
+    assert doc.read_text() == "# skill\n"
+
+
+def test_skills_offline_no_cache_clean_error(tmp_path, monkeypatch):
+    monkeypatch.setattr(ovos_docs, "SKILLS", ["http://127.0.0.1:1/x/README.md"])
+
+    def offline(*a, **k):
+        raise requests.ConnectionError("offline")
+
+    monkeypatch.setattr(ovos_docs.requests, "get", offline)
+    with pytest.raises(ovos_docs.click.ClickException):
+        ovos_docs.download_skills()
